@@ -1,0 +1,28 @@
+---
+title: "hw1"
+author: "Jesse Weiss"
+date: "January 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+hw pg 120
+
+1. Table 3.4 (pg 74)
+
+![Table 3.4](table3_4.png)
+  
+THe null hypthesis for each term in table 3.4 (intercept, tv, radio, newspaper) is that there is no relationship between them and the dependent variable (sales). Additionally, the null hypthesis states that the coefficients for each of these variables are equal to zero. The approximately sero p-value for TV indicates that there is an extremely low probability that fluctuations in TV spend (holding radio and newspaper spend unchanged) are unrelated to the resulting fluctuations in sales. THe same can be said for radio, the near zero p-value indicates an extremely low probability that radio spend (holding TV and newspaper spend unchanged) has no relationship with sales. The high p-value for newspaper indicates a lack of evidence that newspaper has any significant relationship with sales when radio and tv spend are held constant.
+
+2.
+
+```{r}
+
+b0 = 50; b1 = 20; b2 = .07; b3 = 35; b4 = .01; b5 = 10
+
+
+
+```
+
