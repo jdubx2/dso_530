@@ -6,12 +6,18 @@ output: html_document
 ---
 <style>
 body{
-background: snow;
+background: white;
 }
 #header {
     margin: auto;
     width: 50%;
     text-align: center;}
+h1 {
+font-size:26px !important;
+}
+.li_1 {
+padding-bottom: 10px;
+}
 </style>
 
 ```{r setup, include=FALSE}
@@ -19,22 +25,30 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
 <li> 
-<p style = "margin-left: 20px; margin-top:20px; margin-bottom:30px;>The null hypthesis for intercept, tv, radio and newspaper is that there is no relationship between each term and the dependent variable (sales). Additionally, the null hypthesis states that the coefficients for each of these variables are equal to zero. The approximately sero p-value for TV indicates that there is an extremely low probability that TV spend has no association with sales. The same can be said for radio, the near zero p-value indicates an extremely low probability that radio spend has no association with sales. The high p-value for newspaper indicates a lack of evidence that newspaper has any significant relationship with sales when radio and tv spend are held constant.</p>
+<p style = "margin-left: 20px; margin-top:20px; margin-bottom:30px;>
+The null hypthesis for intercept, tv, radio and newspaper is that there is no relationship between each term and the dependent variable (sales). Additionally, the null hypthesis states that the coefficients for each of these variables are equal to zero. $$H_0 : \beta_0 = \beta_1 = \beta_2 = \beta_3 = 0$$
+The approximately zero p-value for TV indicates that there is an extremely low probability that TV spend has no association with sales. The same can be said for radio, the near zero p-value indicates an extremely low probability that radio spend has no association with sales. The high p-value for newspaper indicates a lack of evidence that newspaper has any significant relationship with sales when radio and tv spend are considered and held constant.
+</p>
+</li>
+<li value = '3'>
+  <ol type = 'a'>
+  <li class = 'li_1'> iii - For a fixed value of IQ and GPA, males earn more on average than females provided that the GPA is high enough.</li>
+  <li class = 'li_1'><br />
+```{r}
+b0 = 50; b1 = 20; b2 = .07; b3 = 35; b4 = .01; b5 = -10
+(b0 + b1*4 + b2*110 + b3*1 + b4*4*110 + b5*4*1) * 1000
+```
+  </li>
+  <li> False because we don't have enough information to answer the question. We need to compute a p value for  $\beta_4$ to properly reject or accept the null hypothesis.
+  </li>
+  </ol>
 </li>
 <li>
   <ol type = 'a'>
-  <li style = 'padding-bottom: 10px;'> iv - For a fixed value of IQ and GPA, females earn more on average than males provided that the GPA is high enough.</li>
-  <li style = 'padding-bottom: 10px;'><br />
-```{r}
-
-b0 = 50; b1 = 20; b2 = .07; b3 = 35; b4 = .01; b5 = -10
-
-(b0 + b1*4 + b2*110 + b3*1 + b4*4*110 + b5*4*1) * 1000
-
-```
+  <li class = 'li_1'> There isn't enough information to be entirely sure, but the cubic regression line might have a slightly lower RSS since it is more flexible than the linear regression. If there is very little irreducible error in the data though, it's possible that the linear regression could actually have a lower RSS.
   </li>
-  <li> True because an extremely low coefficient is indicative of 
-</ol>
+  <li class = 'li_1'> The linear regression is likely to have a better fit
+  </li>
 
 </li>
 </ol>>
