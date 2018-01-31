@@ -32,23 +32,36 @@ The approximately zero p-value for TV indicates that there is an extremely low p
 </li>
 <li value = '3'>
   <ol type = 'a'>
-  <li class = 'li_1'> iii - For a fixed value of IQ and GPA, males earn more on average than females provided that the GPA is high enough.</li>
-  <li class = 'li_1'><br />
+  <li class = 'li_1'> 
+iii - For a fixed value of IQ and GPA, males earn more on average than females provided that the GPA is high enough.</li>
+  <li class = 'li_1'><br/>
 ```{r}
 b0 = 50; b1 = 20; b2 = .07; b3 = 35; b4 = .01; b5 = -10
 (b0 + b1*4 + b2*110 + b3*1 + b4*4*110 + b5*4*1) * 1000
 ```
   </li>
-  <li> False because we don't have enough information to answer the question. We need to compute a p value for  $\beta_4$ to properly reject or accept the null hypothesis.
+  <li style = 'margin-bottom:30px;'> 
+False because we don't have enough information to answer the question. We need to be able to compute a p value for  $\beta_4$ to properly reject or accept the null hypothesis.
   </li>
   </ol>
 </li>
 <li>
   <ol type = 'a'>
-  <li class = 'li_1'> There isn't enough information to be entirely sure, but the cubic regression line might have a slightly lower RSS since it is more flexible than the linear regression. If there is very little irreducible error in the data though, it's possible that the linear regression could actually have a lower RSS.
+  <li class = 'li_1'> 
+There isn't enough information to be entirely sure, but the cubic regression line might have a slightly lower RSS since it is more flexible than the linear regression. If there is very little irreducible error in the data though, it's possible that the linear regression would actually have a lower RSS.
   </li>
-  <li class = 'li_1'> The linear regression is likely to have a better fit
+  <li class = 'li_1'> 
+The linear regression is likely to have a better fit on the test set because there is a true linear realtionship and a cubic would likely have overfit the training examples.
   </li>
+  <li class = 'li_1'>
+It's hard to say given that we don't know how far from linear the relationship is but its more likely that the cubic regression will have a lower training RSS due to its greater flexibility. 
+  </li>
+  <li class = 'li_1'>
+There really isn't enough data to answer this question confidently. If the releationship is extremely close to linear then the linear regression would likely have a lower test RSS. If the relationship is far away from linear there is no guarantee which type of model would have a lower RSS. THe high bias of the linear model and the greater varience of the cubic model could both lead to issues when facing unseen data points.
+  </li>
+  </ol>
+</li>
+<li>
 
 </li>
 </ol>>
