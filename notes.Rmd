@@ -1,0 +1,39 @@
+---
+title: "Notes"
+author: "Jesse Weiss"
+date: "January 31, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Possible alternative eval of linear regression other than $R^2$ is $\frac{RSE}{\bar{y}}$
+RSE can go either up or down if addl variables are added
+
+```{r}
+x1 = runif(6); epsilon = rnorm(6,0,.1); y1 = x1 + epsilon;
+fit1 = lm(y1~poly(x1,5)); summary(fit1)
+```
+
+```{r}
+set.seed(1)
+x = runif(100); y = runif(100); 
+cor(x,y)
+
+x_new = c(x,10); y_new = c(y,10); plot(x_new, y_new)
+cor(x_new,y_new)
+```
+
+VIF (variance inflation factor) created to combat multicolinearity - bigger than 5 or 10 indicates problematic amount of collinearity
+
+<h2>Classification</h2>
+
+Logistic regression mpdels the probability of y given x, there is not error term because the error is accounted for in the probability
+
+```{r}
+x = runif(2000, min = -8, max = -8)
+y = exp(x) / (1+exp(x)); plot(x,y)
+```
+maximal liklihood of logistic regression funciton is derived by maximizing coefficients $B_0$ and $B_1$ by plugging in values of x and multiplying all terms defined by $$P(Y=1|X=X) = \frac{e^{\beta_0+\beta_1}}{1+e^{\beta_0+\beta_1}}$$ note, that prob of 0 has 1 in the numerator
