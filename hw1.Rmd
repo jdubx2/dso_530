@@ -21,6 +21,8 @@ padding-bottom: 10px;
 </style>
 
 ```{r setup, include=FALSE}
+library(ISLR)
+data(Auto)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
@@ -57,11 +59,41 @@ The linear regression is likely to have a better fit on the test set because the
 It's hard to say given that we don't know how far from linear the relationship is but its more likely that the cubic regression will have a lower training RSS due to its greater flexibility. 
   </li>
   <li class = 'li_1'>
-There really isn't enough data to answer this question confidently. If the releationship is extremely close to linear then the linear regression would likely have a lower test RSS. If the relationship is far away from linear there is no guarantee which type of model would have a lower RSS. THe high bias of the linear model and the greater varience of the cubic model could both lead to issues when facing unseen data points.
+There really isn't enough data to answer this question confidently. If the releationship is extremely close to linear then the linear regression would likely have a lower test RSS. If the relationship is far away from linear there is no guarantee which type of model would have a lower RSS. THe high bias of the linear model and the greater varience of the cubic model could both lead to issues when given unseen data in this scenario.
   </li>
   </ol>
 </li>
 <li>
-
+$$\hat{y_i} = \frac{\sum^n_{{i`} = 1}x_{i`} y_{i`}}{\sum^n_{j = 1}x^2_j}x_i=\sum^n_{{i`} = 1}\frac{x_{i`}x_i}{\sum^n_{j = 1}x^2_j}y_{i`} = \sum^n_{{i`} = 1}a_{i`}y_{i`}$$
+<center>where</center>
+$$a_{i`} = \sum^n_{{i`} = 1}\frac{x_{i`}x_i}{\sum^n_{j = 1}x^2_j}y_{i`}$$
+</li>
+<li>
+Knowing the linear regression equation $y = \hat{\beta_0} + \hat{\beta_1}x$ and that $\hat{\beta_0} = \bar{y} - \hat{\beta}_1\bar{x}$, we can substitute $\bar{x}$ for $x$ and solve for $y$
+$$y = \bar{y} - \hat{\beta}_1\bar{x} + \hat{\beta_1}\bar{x} = \bar{y}$$
+</li>
+<li>
+Placeholder for hard question
+</li>
+<li>
+```{r}
+model <- lm(mpg~horsepower, data = Auto)
+summary(model)
+```
+ <ol type = 'i'>
+ <li class = 'li_1'>
+With a p value of approximately 0, we can infer that there is a relationship between mpg and horsepower.
+ </li>
+ <li class = 'li_1'>
+There is a strong relationship between mpg and horsepower.
+ </li>
+ <li class = 'li_1'>
+The relationship between mpg and horsepower is negative.
+ </li>
+ <li class = 'li_1'><br/>
+```{r}
+39.935861 + -.157845 * 98
+```
+ </li>
 </li>
 </ol>>
