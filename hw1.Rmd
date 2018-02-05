@@ -23,6 +23,7 @@ padding-bottom: 10px;
 ```{r setup, include=FALSE}
 library(ISLR)
 data(Auto)
+data(Carseats)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
@@ -75,11 +76,13 @@ $$y = \bar{y} - \hat{\beta}_1\bar{x} + \hat{\beta_1}\bar{x} = \bar{y}$$
 <li>
 Placeholder for hard question
 </li>
-<li>
+<li> <br/>
 ```{r}
 model <- lm(mpg~horsepower, data = Auto)
 summary(model)
 ```
+ <Ol type = 'a'>
+ <li>
  <ol type = 'i'>
  <li class = 'li_1'>
 With a p value of approximately 0, we can infer that there is a relationship between mpg and horsepower.
@@ -92,8 +95,106 @@ The relationship between mpg and horsepower is negative.
  </li>
  <li class = 'li_1'><br/>
 ```{r}
-39.935861 + -.157845 * 98
+predict(model, data.frame(horsepower = 98), interval = "prediction")
 ```
  </li>
+ </ol>
+ <li><br/>
+```{r}
+plot(Auto$horsepower, Auto$mpg)
+abline(model)
+```
 </li>
-</ol>>
+ <li><br/>
+```{r}
+plot(model)
+```
+<br/>
+There are some high leverage points in this dataset an a noticable pattern in the residuals which indicates that the relationship between mpg and horsepower may not be linear.
+</li>
+</ol>
+</li>
+<li>
+<Ol type = 'a'>
+<li><br />
+```{r}
+pairs(Auto)
+```
+</li>
+<li><br/>
+```{r}
+cor(Auto[-9])
+```
+</li>
+<li><br/>
+```{r}
+model <- lm(mpg~., data = Auto[-9])
+summary(model)
+```
+<Ol type = 'i'>
+<li> There is a realtionship between the predictors and response</li>
+<li> displacement, weight, year and origin all seem to have statistically significant relationships with the reponse (mpg)</li>
+<li>The coefficient for year (.750) suggestes that cars made in later years have higher mpg</li>
+</ol>
+</li>
+<li><br />
+```{r}
+plot(model)
+```
+<br/>There is one points with very high leverage (row 14) and teh residuals plot suggests that there are a few large outliers, primarily resulting from vehicles with high mpgs.
+</li>
+<li><br/>
+```{r}
+model <- lm(mpg ~ . + displacement * weight + cylinders * horsepower, data = Auto[-9])
+summary(model)
+```
+<br /> Displacement:weight and cylinders:horsepower both seem to be significant interactions, each having near 0 p-values.</li>
+<li><br/>
+```{r}
+model <- lm(mpg ~ . + log(weight) + sqrt(cylinders), data = Auto[-9])
+summary(model)
+```
+<br/>Log weight is a significant predictor that seems to add value to this model.
+</li>
+</ol>
+</li>
+<li>
+<Ol type = 'a'>
+<li><br/>
+```{r}
+model <- lm(Sales ~ Price + Urban + US, data = Carseats)
+summary(model)
+```
+</li>
+<li>
+Price is a significant predictor in this model with a negative coefficient indicating that higher prices will decrease sales. Urban does not seem to be a significant predictor. US is significant and has a positive coefficient meaning that a value of yes for US should have  positive impact on sales.
+</li>
+<li>
+$\hat{y} = 13.04 + -.05x_1 + -.02x_2 + 1.2x_3$
+</li>
+<li>
+We may reject the null hypothesis for the Price and US predictors
+</li>
+<li><br/>
+```{r}
+model <- lm(Sales ~ Price + US, data = Carseats)
+summary(model)
+```
+</li>
+<li>
+BOth models have significant predictors and explain some variance but the $R^2$ values indicate that much of the variance is still left unexplained by both models.
+</li>
+<li></br>
+```{r}
+confint(model, level = .95)
+```
+</li>
+<li><br />
+```{r}
+plot(model)
+```
+<br/> There are a few high leverage points but no extreme outliers based on the residual and leverage plots of this model.
+</li>
+</ol>
+</li>
+</ol>
