@@ -74,7 +74,7 @@ Knowing the linear regression equation $y = \hat{\beta_0} + \hat{\beta_1}x$ and 
 $$y = \bar{y} - \hat{\beta}_1\bar{x} + \hat{\beta_1}\bar{x} = \bar{y}$$
 </li>
 <li>
-Placeholder for hard question
+Knowing that $$R^2=1-\frac{RSS}{TSS} = 1 - \frac{\sum_i{(y_i - \hat{y}_i)}^2}{\sum_j{y^2_j}}$$
 </li>
 <li> <br/>
 ```{r}
