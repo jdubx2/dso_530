@@ -26,6 +26,8 @@ library(ISLR)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(MASS)
+library(class)
 data(Weekly)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -36,9 +38,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 </li>
-<li>
+<li value='10'>
   <ol type = 'a'>
-  <li  value='10'><br />
+  <li><br />
 ```{r}
 pairs(Weekly[-9])
 
@@ -47,7 +49,7 @@ summary(lm(log(Volume)~Year, Weekly))
 cor(Weekly[-9])
 
 Weekly %>% 
-  select(Lag1:Lag5, Direction) %>% 
+  dplyr::select(Lag1:Lag5, Direction) %>% 
   gather(lag,value,-Direction) %>% 
   ggplot(aes(x = lag, y = value, fill = Direction)) +
   geom_boxplot()
@@ -58,6 +60,77 @@ Weekly %>%
   geom_point(size=1.5, color = 'gray30') + geom_hline(yintercept = 0, linetype = 'dashed') +
   scale_x_continuous(breaks = seq(1990,2010,2))
 
+```
+<br />The pairs plot and subsequent linear regrssion reveals a strong positive association between the Year and Volume varaibles.The trend is logarithimic in nature. We can also see through correlations and subsequent box plots that the lag1 varaible has a slightly negative relationship to the current day change while the lag2 variable has a slightly positive relationship with the current day. Plotting the total gain/loss by year for the entire dataset reveals that we are more likely to see gains than losses in aggregate.
+  </li>
+  <li> <br />
+```{r}
+sub = dplyr::select(Weekly, -c(Year,Today))
+lr1 <- glm(Direction ~ ., data=sub, family = 'binomial')
+summary(lr1)
+```
+  The only statistically significant predictor in this model appears to be Lag2 with a P value of .0296
+  </li>
+  <li><br/>
+```{r}
+lr1.prob <- predict(lr1, type = 'response')
+lr1.predict <- ifelse(lr1.prob > .5, 'Up','Down')
+table(lr1.predict,Weekly$Direction)
+(54+557)/(54+48+430+557)
+```
+Using logistic regression with a probabiltity decision threshold of .5 predicts the direction correctly 56% of the time. This is slightly better than random. The confusion matrix indicates that the model tends to bias towards upwards predictions at this decision threshold.
+  </li>
+  <li><br />
+```{r}
+lr2 <- glm(Direction ~ Lag2, data = filter(Weekly, Year < 2009), family = 'binomial')
+lr2.prob <- predict(lr2, newdata = filter(Weekly, Year >= 2009), type = 'response')
+lr2.predict <- ifelse(lr2.prob > .5, 'Up','Down')
+table(lr2.predict,filter(Weekly, Year >= 2009)$Direction)
+(9+56)/(9+5+34+56)
+```
+  </li>
+  <li><br />
+```{r}
+lda1 <- lda(Direction ~ Lag2, data = filter(Weekly, Year < 2009))
+lda1.predict <- predict(lda1, newdata = filter(Weekly, Year >= 2009))
+lda1.class <- lda1.predict$class
+table(lda1.class, filter(Weekly, Year >= 2009)$Direction)
+(9+56)/(9+5+34+56)
+```
+  </li>
+   <li><br />
+```{r}
+qda1 <- qda(Direction ~ Lag2, data = filter(Weekly, Year < 2009))
+qda1.predict <- predict(qda1, newdata = filter(Weekly, Year >= 2009))
+qda1.class <- qda1.predict$class
+table(qda1.class, filter(Weekly, Year >= 2009)$Direction)
+61/(43+61)
+```
+  </li>
+  <li><br />
+```{r}
+set.seed(1)
+knn.pred1 <- knn(filter(Weekly, Year < 2009)[3],
+                filter(Weekly, Year >= 2009)[3],
+                filter(Weekly, Year < 2009)$Direction, k = 1)
+table(knn.pred1, filter(Weekly, Year >= 2009)$Direction)
+(21+31)/(30+22+21+31)
+```
+  </li>
+  <li>
+Logistic regression and LDA give us identical results in this example and perform the best with the lowest classification error. QDA has a lower classification error than KNN but predicts up for every data point which is undesired. KNN with k=1 performs the worst with .5 classification error.
+  </li>
+</li>
+<li>
+  <li type = 'a'><br />
+```{r}
+data(Auto)
+Auto1 <- Auto %>% mutate(mpg01 = ifelse(mpg > median(mpg), 1, 0))
+```
+  </li>
+  <li><br />
+```{r}
+pairs(Auto1[-9])
 ```
   </li>
 </li>
