@@ -1,0 +1,63 @@
+---
+title: "DSO 530 HW2"
+author: "Jesse Weiss"
+date: "February 19, 2018"
+output: html_document
+---
+
+<style>
+body{
+background: white;
+}
+#header {
+    margin: auto;
+    width: 50%;
+    text-align: center;}
+h1 {
+font-size:26px !important;
+}
+.li_1 {
+padding-bottom: 10px;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(ISLR)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+data(Weekly)
+knitr::opts_chunk$set(echo = TRUE)
+```
+<ol>
+<li value='7'> 153/184
+```{r}
+(.8 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-10)^2))) / ((.8 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-10)^2))) + .2 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-0)^2)))
+
+```
+</li>
+<li>
+  <ol type = 'a'>
+  <li  value='10'><br />
+```{r}
+pairs(Weekly[-9])
+
+summary(lm(log(Volume)~Year, Weekly))
+
+cor(Weekly[-9])
+
+Weekly %>% 
+  select(Lag1:Lag5, Direction) %>% 
+  gather(lag,value,-Direction) %>% 
+  ggplot(aes(x = lag, y = value, fill = Direction)) +
+  geom_boxplot()
+
+Weekly %>% 
+  group_by(Year) %>% summarise(total_gain_loss = sum(Today)) %>% 
+  ggplot(aes(x = Year, y = total_gain_loss))+ geom_line(color='deepskyblue2',size=1) +
+  geom_point(size=1.5, color = 'gray30') + geom_hline(yintercept = 0, linetype = 'dashed') +
+  scale_x_continuous(breaks = seq(1990,2010,2))
+
+```
+  </li>
+</li>
