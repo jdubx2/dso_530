@@ -32,7 +32,7 @@ data(Weekly)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
-<li value='7'> 153/184
+<li value='7'> <br />
 ```{r}
 (.8 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-10)^2))) / ((.8 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-10)^2))) + .2 * (1/sqrt(2*36)*exp(-(1/(2*36))*(4-0)^2)))
 
@@ -176,16 +176,28 @@ glm.predict <- ifelse(glm.probs > .5, 1, 0)
 table(glm.predict, auto_test$mpg01)
 (35+2)/(62+93+2+35)
 ```
-    <br /> Logistic regression test error is <b>19.3%</b>
+  <br />Logistic regression test error is <b>19.3%</b>
   </li>
   <li><br />
 ```{r}
-set.seed(1)
-knn.pred <- knn(auto_train[,3:5],
+run_knn <- function(k){
+  set.seed(1)
+  knn.pred <- knn(auto_train[,3:5],
                 auto_test[,3:5],
-                auto_train$mpg01, k = 1)
-table(knn.pred, auto_test$mpg01)
+                auto_train$mpg01, k = k)
+  t1 <- table(knn.pred, auto_test$mpg01)
+  return((t1[2,1]+t1[1,2])/(sum(t1)))
+}
+
+knn_result <- data.frame(k_value = seq(1,135,1), 
+                         test_error = sapply(seq(1,135,1),run_knn))
+
+ggplot(knn_result, aes(x = k_value, y = test_error))+
+  geom_line(size = 1.5, color = 'deepskyblue2')
+
+arrange(knn_result, test_error) %>% head()
 ```
+  <br /> K values between 115 and 117 appear to give the best test error at <b>12.5%</b>
   </li>
   </ol>
 </li>
