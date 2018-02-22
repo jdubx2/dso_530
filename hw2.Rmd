@@ -98,7 +98,7 @@ table(lda1.class, filter(Weekly, Year >= 2009)$Direction)
 (9+56)/(9+5+34+56)
 ```
   </li>
-   <li><br />
+  <li><br />
 ```{r}
 qda1 <- qda(Direction ~ Lag2, data = filter(Weekly, Year < 2009))
 qda1.predict <- predict(qda1, newdata = filter(Weekly, Year >= 2009))
@@ -120,9 +120,11 @@ table(knn.pred1, filter(Weekly, Year >= 2009)$Direction)
   <li>
 Logistic regression and LDA give us identical results in this example and perform the best with the lowest classification error. QDA has a lower classification error than KNN but predicts up for every data point which is undesired. KNN with k=1 performs the worst with .5 classification error.
   </li>
+  </ol>
 </li>
-<li>
-  <li type = 'a'><br />
+<li><br />
+  <ol type = 'a'>
+  <li><br />
 ```{r}
 data(Auto)
 Auto1 <- Auto %>% mutate(mpg01 = ifelse(mpg > median(mpg), 1, 0))
@@ -131,6 +133,59 @@ Auto1 <- Auto %>% mutate(mpg01 = ifelse(mpg > median(mpg), 1, 0))
   <li><br />
 ```{r}
 pairs(Auto1[-9])
+
+Auto1 %>% dplyr::select(displacement:acceleration,mpg01) %>% 
+  gather(stat, value, -mpg01) %>% 
+  ggplot(aes(x = '', y = value, fill = as.factor(mpg01)))+
+  geom_boxplot() +
+  facet_grid(stat~., scales = 'free_y')
+```
+<br/>Displacement, horsepower and weight all look like they will be hlepful in predicting the value of mpg01.
+  </li>
+  <li></br>
+```{r}
+auto_train <- Auto1[1:200,]
+auto_test <- Auto1[201:392,]
 ```
   </li>
+  <li><br />
+```{r}
+lda <- lda(mpg01 ~ displacement + horsepower + weight, data = auto_train)
+lda.predict <- predict(lda, newdata = auto_test)
+lda.class <- lda.predict$class
+table(lda.class, auto_test$mpg01)
+(11+12)/(52+11+12+117)
+```
+  <br /> LDA test error is <b>12.0%</b>
+  </li>
+  <li><br />
+```{r}
+qda <- qda(mpg01 ~ displacement + horsepower + weight, data = auto_train)
+qda.predict <- predict(qda, newdata = auto_test)
+qda.class <- qda.predict$class
+table(qda.class, auto_test$mpg01)
+(7+19)/(57+19+7+109)
+```
+  <br /> QDA test error is <b>13.5%</b>
+  </li>
+  <li><br />
+```{r}
+glm <- glm(mpg01 ~ displacement + horsepower + weight, data = auto_train, family = 'binomial')
+glm.probs <- predict(glm, newdata = auto_test, type = 'response')
+glm.predict <- ifelse(glm.probs > .5, 1, 0)
+table(glm.predict, auto_test$mpg01)
+(35+2)/(62+93+2+35)
+```
+    <br /> Logistic regression test error is <b>19.3%</b>
+  </li>
+  <li><br />
+```{r}
+set.seed(1)
+knn.pred <- knn(auto_train[,3:5],
+                auto_test[,3:5],
+                auto_train$mpg01, k = 1)
+table(knn.pred, auto_test$mpg01)
+```
+  </li>
+  </ol>
 </li>
