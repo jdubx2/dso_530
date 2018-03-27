@@ -1,0 +1,50 @@
+---
+title: "hw3"
+author: "Jesse Weiss"
+date: "March 25, 2018"
+output: html_document
+---
+<style>
+body{
+background: white;
+}
+#header {
+    margin: auto;
+    width: 50%;
+    text-align: center;}
+h1 {
+font-size:26px !important;
+}
+.li_1 {
+padding-bottom: 10px;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(ISLR)
+library(dplyr)
+library(ggplot2)
+library(boot)
+knitr::opts_chunk$set(echo = TRUE)
+```
+<ol>
+<li value='1'>
+$$ $$
+</li>
+<li value = '3'>
+  <ol>
+  <li value = 'a'>
+In $k$-fold cross-validation, the training data is first split into $k$ mutually exclusive partitions. The model is then fit $k$ times, each time using $k-1$ partitions as the test set and the remaining partition as the validation set. The model evaluation criteria are averaged accross all $k$ results.
+  </li>
+  <li><br />
+  <ol><li value='i'>Compared to the validation set approach, $k$-fold cross-validation can be advantageous because it leverages the entire dataset for training (not just the pre-allocated testing sample). This makes $k$-fold less variable as the validation set approach will depend heavily on which observations are included in the test set. On the other hand, the validation set is simple to implement and demands less computing resources.</li>
+  <li>LOOCV is a special case of $k$-fold cross validation where $k=n$. It can be disadvantageous to use LOOCV because it is computationaly intensive (model must be fit $n$ times) and has higher variance than a smaller choice for $k$.</li></ol>
+  </li></ol>
+</li>
+<li value ='5'>
+``` {r}
+set.seed(1)
+data(Default)
+```
+</li>
+</ol>
