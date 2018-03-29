@@ -25,23 +25,25 @@ library(ISLR)
 library(dplyr)
 library(ggplot2)
 library(boot)
+library(leaps)
+library(tidyr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
 <li value='1'>
-$$ $$
+$$SOMETHING $$
 </li>
 <li value = '3'>
   <ol>
-  <li value = 'a'>
+  <li type = 'a'>
 In $k$-fold cross-validation, the training data is first split into $k$ mutually exclusive partitions. The model is then fit $k$ times, each time using $k-1$ partitions as the test set and the remaining partition as the validation set. The model evaluation criteria are averaged accross all $k$ results.
   </li>
-  <li><br />
-  <ol><li value='i'>Compared to the validation set approach, $k$-fold cross-validation can be advantageous because it leverages the entire dataset for training (not just the pre-allocated testing sample). This makes $k$-fold less variable as the validation set approach will depend heavily on which observations are included in the test set. On the other hand, the validation set is simple to implement and demands less computing resources.</li>
-  <li>LOOCV is a special case of $k$-fold cross validation where $k=n$. It can be disadvantageous to use LOOCV because it is computationaly intensive (model must be fit $n$ times) and has higher variance than a smaller choice for $k$.</li></ol>
+  <li type = 'a'><br />
+  <ol><li type='i'>Compared to the validation set approach, $k$-fold cross-validation can be advantageous because it leverages the entire dataset for training (not just the pre-allocated testing sample). This makes $k$-fold less variable as the validation set approach will depend heavily on which observations are included in the test set. On the other hand, the validation set is simple to implement and demands less computing resources.</li>
+  <li type = 'i'>LOOCV is a special case of $k$-fold cross validation where $k=n$. It can be disadvantageous to use LOOCV because it is computationaly intensive (model must be fit $n$ times) and has higher variance than a smaller choice for $k$.</li></ol>
   </li></ol>
-</li>
 <li value ='5'>
+<ol><li type='a'><br />
 ``` {r}
 attach(Default)
 set.seed(1)
@@ -57,11 +59,83 @@ model_error <- function(){
 }
 
 model_error()
+```
+</li>
+<li type = 'a'><br />
+```{r}
+model_error()
+model_error()
+model_error()
+```
+<p>Different training splits of this model produce similar results with test error rates ranging from 2.36% - 2.68%</p>
+</li></ol>
+</li>
+<li value = '1'>
+ <ol>
+ <li type = 'a'>best subset selection should have the smallest training RSS because it requires fitting all $2^p$ possible models (evaluated by RSS) while forward and backward stepwise selection fit only a subset of these models.</li>
+ <li type = 'a'>Best subset selection again ahs an advantage because it fits all models however there is no guarantee that a model with the best training performance will also have the smallest test RSS. Forward or backward stepwise may have a smaller test error by chance.</li>
+ <li type = 'a'>
+ <ol type = 'i'>
+ <li>True</li>
+ <li>True</li>
+ <li>False</li>
+ <li>False</li>
+ <li>False</li>
+ </ol>
+ </li>
+ </ol>
+</li>
+<li>
+ <ol type = 'a'>
+ <li>
+  Option iii is correct. The lasso will shrink the coefficients of the model and perform variable selection thereby reducing the models variance and increasing its bias. If the decrease in variance is larger than the increase in bias the model should make better predictions.
+ </li>
+ <li>
+  option iii is correct. Ridge will shrink the coefficients of the model thereby reducing the model's variance and increasing its bias. If the decrease in variance is alarger than the increase in bias the model should make better predictions.
+ </li>
+ </ol>
+</li>
+<li value = '8'>
+ <ol type = 'a'>
+ <li><br />
+```{r}
+set.seed(1)
+X <- rnorm(100)
+Ep <- rnorm(100)
+```
+ </li>
+ <li><br />
+```{r}
+b0=1;b1=2;b2=3;b3=4
+Y = b0 + b1*X + b2*X^2 + b3*X^3 + Ep
+```
+ </li>
+ <li><br />
+```{r}
+df <- data.frame(x = X, y = Y)
+regfit <- regsubsets(y~poly(x,10, raw = T),data =df, nvmax=10)
 
-model_error()
-model_error()
-model_error()
+results <- data.frame(model = seq(1,10),
+                      adjr2 = summary(regfit)$adjr2,
+                      cp = summary(regfit)$cp,
+                      bic = summary(regfit)$bic) %>% 
+  gather(criterion,value,-model)
+
+best <- results %>% group_by(criterion) %>% 
+  mutate(minval = min(value), maxval = max(value),
+         best = ifelse(criterion == 'adjr2', maxval,minval)) %>% 
+  filter(value == best)
+
+results %>% ggplot(aes(x = model, y = value, color = criterion))+
+  geom_line()+ geom_point(size = 2,data=best) +
+  facet_grid(criterion~., scales='free_y') +
+  scale_x_continuous(breaks = seq(1,10)) + theme_bw()
+
+coef(regfit, 4)
 
 ```
+ <p>BIC is lowest for model 3 while adjr2 and Cp indicate model 4 as best with max and min values respe3ctively.</p>
+ </li>
+ </ol>
 </li>
 </ol>
