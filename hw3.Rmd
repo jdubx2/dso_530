@@ -46,15 +46,21 @@ In $k$-fold cross-validation, the training data is first split into $k$ mutually
 attach(Default)
 set.seed(1)
 
-train <- sample(nrow(Default),nrow(Default)*.5)
+model_error <- function(){
+  
+  trainset <- sample(nrow(Default),nrow(Default)*.5)
+  fit <- glm(default ~ income + balance, family = 'binomial', subset = trainset)
+  test.prob <- predict(fit, newdata = Default[-trainset,], type = 'response')
+  test.predict <- ifelse(test.prob > .5,'Yes','No')
+  
+  return(1-sum(test.predict == Default[-trainset,]$default)/length(test.predict))
+}
 
-fit <- glm(default ~ income + balance, family = 'binomial',subset=train)
+model_error()
 
-test.prob <- predict(fit, newdata = Default[-train,], type = 'response')
-test.predict <- ifelse(test.prob > .5, 'Yes','No')
-
-table(test.predict,Default[-train,]$default)
-1-sum(test.predict == Default[-train,]$default)/length(test.predict)
+model_error()
+model_error()
+model_error()
 
 ```
 </li>
