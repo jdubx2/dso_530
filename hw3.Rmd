@@ -27,6 +27,7 @@ library(ggplot2)
 library(boot)
 library(leaps)
 library(tidyr)
+library(glmnet)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
@@ -131,10 +132,54 @@ results %>% ggplot(aes(x = model, y = value, color = criterion))+
   facet_grid(criterion~., scales='free_y') +
   scale_x_continuous(breaks = seq(1,10)) + theme_bw()
 
-coef(regfit, 4)
+coef(regfit, 3)
 
 ```
- <p>BIC is lowest for model 3 while adjr2 and Cp indicate model 4 as best with max and min values respe3ctively.</p>
+ <p>BIC is lowest for model 3 while adjusted $R^2$(max) and $C_p$(min) indicate model 4 as optimal. The extremely small improvement in both adj $R^2$ and $C_p$ from model 3 to 4 leads me to beleive that the extra predictor in model 4 is not adding much value to the predictive power of the model and could result in uneccessary variance. For these reasons I'm inclined to select model 3 as the best model.</p>
+ </li>
+ <li><br />
+```{r}
+regfit_fw <- regsubsets(y~poly(x,10, raw = T),data =df, nvmax=10, method = 'forward')
+regfit_bw <- regsubsets(y~poly(x,10, raw = T),data =df, nvmax=10, method = 'backward')
+
+results_sw <- rbind(data.frame(method = 'forward',
+                      model = seq(1,10),
+                      adjr2 = summary(regfit_fw)$adjr2,
+                      cp = summary(regfit_fw)$cp,
+                      bic = summary(regfit_fw)$bic),
+                    data.frame(method = 'backward',
+                      model = seq(1,10),
+                      adjr2 = summary(regfit_bw)$adjr2,
+                      cp = summary(regfit_bw)$cp,
+                      bic = summary(regfit_bw)$bic))%>% 
+  gather(criterion,value,-c(method,model))
+
+best_sw <- results_sw %>% group_by(method,criterion) %>% 
+  mutate(minval = min(value), maxval = max(value),
+         best = ifelse(criterion == 'adjr2', maxval,minval)) %>% 
+  filter(value == best)
+
+results_sw %>% ggplot(aes(x = model, y = value, color = criterion))+
+  geom_line()+ geom_point(size = 2,data=best_sw) +
+  facet_grid(criterion~method, scales='free_y') +
+  scale_x_continuous(breaks = seq(1,10)) + theme_bw()
+```
+<p>The results of forward and backward stepwise selection are very similar to the results of best subset selection. BIC is still optimal at the model with 3 predictors while adjusted $R^2$ and $C_p$ are optimal at the model with 4 predictors.</p>
+ </li>
+ <li><br />
+```{r}
+x2 <- model.matrix(y~poly(x,10,raw=T),df)[,-1]
+fit_lasso <- cv.glmnet(x2,Y,alpha=1)
+plot(fit_lasso)
+best.lambda <- fit_lasso$lambda.min
+best.lambda
+fit_lasso_best <- glmnet(x2,Y,alph=1)
+predict(fit_lasso_best, s = best.lambda, type = "coefficients")
+```
+  <p>The lasso kept $X, X^2, X^3, X^4, X^5, X^7$ in the model with the best choice of lambda.</p>
+ </li>
+ <li>
+ 
  </li>
  </ol>
 </li>
