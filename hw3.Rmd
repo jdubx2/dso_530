@@ -32,7 +32,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 <ol>
 <li value='1'>
-$$SOMETHING $$
+$$Var(aX + (1-a)Y)=Var(aX) + Var((1-a)Y) + 2Cov(aX,(1-a)Y)$$
+$$= a^2Var(X) + (1-a)^2Var(Y) + 2a(1-a)Cov(X,Y)$$
+$$f(a)=\sigma^2_Xa^2+\sigma^2_Y(1-a)^2+2\sigma_{XY}(-a^2+a)$$
+Set the partial derivative of $f(a)$ = 0 and solve for $a$
+$$0 = \frac{d}{da}f(a)$$
+$$0 = 2\sigma^2_Xa+2\sigma^2_Y(1-a)(-1)+2\sigma_{XY}(-2a+1)$$
+$$0=a(\sigma^2_X+\sigma^2_Y-2\sigma_{XY})-\sigma^2_Y+\sigma_{XY}$$
+$$a=\frac{\sigma^2_Y-\sigma_{XY}}{\sigma^2_X+\sigma^2_Y-2\sigma_{XY}}$$
 </li>
 <li value = '3'>
   <ol>
@@ -179,7 +186,40 @@ predict(fit_lasso_best, s = best.lambda, type = "coefficients")
   <p>The lasso kept $X, X^2, X^3, X^4, X^5, X^7$ in the model with the best choice of lambda.</p>
  </li>
  <li>
- 
+```{r}
+b7=7
+Y = b0+b7*X^7+Ep
+df2 <- data.frame(y=Y, x=X)
+fit <- regsubsets(y ~poly(X,10,raw=T),data=df2,nvmax=10)
+
+results <- data.frame(model = seq(1,10),
+                      adjr2 = summary(fit)$adjr2,
+                      cp = summary(fit)$cp,
+                      bic = summary(fit)$bic) %>% 
+  gather(criterion,value,-model)
+
+best <- results %>% group_by(criterion) %>% 
+  mutate(minval = min(value), maxval = max(value),
+         best = ifelse(criterion == 'adjr2', maxval,minval)) %>% 
+  filter(value == best)
+
+results %>% ggplot(aes(x = model, y = value, color = criterion))+
+  geom_line()+ geom_point(size = 2,data=best) +
+  facet_grid(criterion~., scales='free_y') +
+  scale_x_continuous(breaks = seq(1,10)) + theme_bw()
+
+coef(regfit, 4)
+```
+ With best subset selection, BIC selects the 1 variable model, adjusted $R^2$ picks the 4 variable model, and $C_p$ picks the 2 variable model.
+```{r}
+X2 = model.matrix(y ~ poly(x, 10, raw = T), data = df2)[, -1]
+fit.lasso = cv.glmnet(X2, Y, alpha = 1)
+best.lam = fit.lasso$lambda.min
+best.lam
+best.model = glmnet(X2, Y, alpha = 1)
+predict(best.model, s = best.lam, type = "coefficients")
+```
+The lasso selects the best 1 variable model using $x^7$
  </li>
  </ol>
 </li>
