@@ -90,3 +90,13 @@ roc_df %>%
   geom_line(color='green3', size=1)+
   stat_function(fun = function(x) x)+
   theme_bw()
+
+
+library(caret)
+#rfCtrl1 = trainControl(method='repeatedcv', number = 5, repeats = 5)
+set.seed(555)
+rf = train(Survived ~ .,
+           data = titanic.train,
+           method = 'rf',
+           trControl = rfCtrl1,
+           
