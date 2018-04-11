@@ -162,6 +162,8 @@ roc_df %>%
   stat_function(fun = function(x) x)+
   theme_bw()
 
-write.csv(smote_train, 'train_smote.csv', row.names = F)
+#write.csv(smote_train, 'train_smote.csv', row.names = F)
+
+smote <- read.csv('train_smote.csv')
 
            
