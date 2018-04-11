@@ -2,7 +2,9 @@ library(data.table)
 library(lubridate)
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 library(MASS)
+library(caret)
 
 setwd('final_project')
 
@@ -17,9 +19,9 @@ test1 <- train1[1000001:1500000,]
 
 ### Logistic Regression ###
 
-mod1 <- glm(is_attributed ~ channelIp10s + channelApp10s + channelDevice10s + channelOs10s + 
+mod1 <- glm(as.numeric(is_attributed) ~ channelIp10s + channelApp10s + channelDevice10s + channelOs10s + 
       osIp10s + osApp10s + osDevice10s + appAttrib + deviceAttrib + osAttrib + channelAttrib +
-      ip10s + app10s + device10s + os10s + channel10s, data = train2, family = 'binomial')
+      ip10s + app10s + device10s + os10s + channel10s, data = train_bal, family = 'binomial')
 
 mod2 <- glm(is_attributed ~ channelIp3s + channelApp3s + channelDevice3s + channelOs3s + 
               osIp3s + osApp3s + osDevice3s + appAttrib + deviceAttrib + osAttrib + channelAttrib +
@@ -92,11 +94,74 @@ roc_df %>%
   theme_bw()
 
 
-library(caret)
 #rfCtrl1 = trainControl(method='repeatedcv', number = 5, repeats = 5)
 set.seed(555)
 rf = train(Survived ~ .,
            data = titanic.train,
            method = 'rf',
-           trControl = rfCtrl1,
+           trControl = rfCtrl1)
+           
+train_bal <- fread('train_balanced.csv', stringsAsFactors = F)
+
+############################
+#hybrid sampling using SMOTE
+
+library(dplyr)
+library(tidyr)
+library(caret)
+library(DMwR)
+library(ROCR)
+
+train_all <- fread('train_all.csv', stringsAsFactors = F)
+
+# change is_attributed to factor, remove original vars to prepare for upsampling
+train_all <- train_all %>% 
+  mutate(is_attributed = factor(is_attributed),
+         channel = factor(channel),
+         os = factor(os),
+         device = factor(device),
+         app = factor(app),
+         ip = factor(ip),
+         click_time = factor(click_time))
+
+train1 <- train_all[1:1000000,]
+test1 <- train_all[1000001:1500000,]
+
+table(train1$is_attributed)
+
+set.seed(100)
+smote_train <- SMOTE(is_attributed ~ ., data = train1, perc.over = 1000)
+
+table(smote_train$is_attributed)
+
+#check equivilency
+smote_train %>% 
+  dplyr::select(is_attributed, contains('channel'), -channel) %>% 
+  gather(var, val, -is_attributed) %>% 
+  group_by(var, is_attributed) %>% 
+  summarise(mean_val = mean(val)) %>% 
+  spread(is_attributed, mean_val)
+
+#Test with Logistic Regression using 10s predictors
+mod1 <- glm(is_attributed ~ channelIp10s + channelApp10s + channelDevice10s + channelOs10s + 
+              osIp10s + osApp10s + osDevice10s + appAttrib + deviceAttrib + osAttrib + channelAttrib +
+              ip10s + app10s + device10s + os10s + channel10s, data = smote_train, family = 'binomial')
+
+mod1.prob <- predict(mod1, newdata = test1, type = 'response')
+mod1.predict <- ifelse(mod1.prob > .5, 1,0)
+table(test1$is_attributed,mod1.predict)
+
+rocr_pred <- prediction(mod1.prob, test1$is_attributed)
+rocr_perf <- performance(rocr_pred, "tpr", "fpr")
+performance(rocr_pred,measure='auc')
+
+roc_df <- data.frame(fp_rate = rocr_perf@x.values[[1]], tp_rate = rocr_perf@y.values[[1]])
+roc_df %>% 
+  ggplot(aes(x=fp_rate,y=tp_rate))+
+  geom_line(color='green3', size=1)+
+  stat_function(fun = function(x) x)+
+  theme_bw()
+
+write.csv(smote_train, 'train_smote.csv', row.names = F)
+
            
