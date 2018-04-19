@@ -1,0 +1,49 @@
+---
+title: "hw4"
+author: "Jesse Weiss"
+date: "April 19, 2018"
+output: html_document
+---
+
+<style>
+body{
+background: white;
+}
+#header {
+    margin: auto;
+    width: 50%;
+    text-align: center;}
+h1 {
+font-size:26px !important;
+}
+.li_1 {
+padding-bottom: 10px;
+}
+</style>
+
+```{r setup, include=FALSE}
+library(ISLR)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(caret)
+data("Carseats")
+knitr::opts_chunk$set(echo = TRUE)
+```
+<ol>
+<li value='5'><br />
+```{r}
+probs = c(.1,.15,.2,.2,.55,.6,.6,.65,.7,.75)
+
+table(ifelse(probs>.5,'Red','Green'))
+mean(probs)
+```
+<p>The majority approach would classify $X$ as Red (a 6 to 4 majority) while the average approach would classify $X$ as green with a mean probility over all 10 samples of .45</p>
+</li>
+<li value = '8'><br/>
+```{r}
+set.seed(2)
+
+
+```
+</li>
