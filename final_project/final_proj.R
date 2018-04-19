@@ -162,8 +162,33 @@ roc_df %>%
   stat_function(fun = function(x) x)+
   theme_bw()
 
-write.csv(smote_train, 'train_smote.csv', row.names = F)
+#write.csv(smote_train, 'train_smote.csv', row.names = F)
 
-#smote <- read.csv('train_smote.csv')
+smote_train <- read.csv('train_smote_Apr15.csv', stringsAsFactors = F)
 
-           
+### reg subsets
+
+library(leaps)
+
+exclude <- c("record","channel","os","device","app","ip","click_time")
+smote_train$is_attributed <- factor(smote_train$is_attributed)
+
+smote_sub <- smote_train[,-which(names(smote_train) %in% exclude)]
+
+system.time(best.subset <- regsubsets(is_attributed~., smote_sub, really.big = T, nvmax = 12))
+
+best.subset.summary = summary(best.subset)
+
+best.subset.by.adjr2 = which.max(best.subset.summary$adjr2)
+best.subset.by.adjr2
+
+best.subset.by.cp = which.min(best.subset.summary$cp)
+best.subset.by.cp
+
+best.subset.by.bic = which.min(best.subset.summary$bic)
+best.subset.by.bic
+
+filter(data.frame(feature = names(best.subset.summary$which[11,]),
+                  result = best.subset.summary$which[11,]), result == T)
+
+
