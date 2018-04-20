@@ -23,8 +23,10 @@ text(tree.carseats ,pretty =0)
 
 test_pred <- predict(tree.carseats, newdata = cs_test)
 
-data.frame(pred = test_pred, act = cs_test$Sales) %>% 
-  mutate(sqerr = (pred-act)^2) %>% summarise(mean(sqerr))
+mean((test_pred -cs_test$Sales)^2)
+
+# data.frame(pred = test_pred, act = cs_test$Sales) %>% 
+#   mutate(sqerr = (pred-act)^2) %>% summarise(mean(sqerr))
 
 #pruning with cross validation
 cvtree.carseats <- cv.tree(tree.carseats)
@@ -48,10 +50,10 @@ pruning <- function(tree_model,sizes){
 
 pruning(tree.carseats,cvtree.carseats$size)
 
-#bagging with random forest
+#bagging with randomForest
 library(randomForest)
 
-bag.carseats <- randomForest(Sales~., data=Carseats)
+bag.carseats <- randomForest(Sales~., data=cs_train,mtry=10)
 yhat.bag <- predict(bag.carseats,newdata=cs_test)
 
 # data.frame(pred = yhat.bag, act = cs_test$Sales) %>% 
@@ -60,7 +62,27 @@ yhat.bag <- predict(bag.carseats,newdata=cs_test)
 mean((yhat.bag -cs_test$Sales)^2)
 importance(bag.carseats)
 
-#rf with 
+#rf with randomForest
+
+cv_rf <- function(train,test){
+  
+  result_list <- list()
+  
+  for(m in seq(1:(ncol(train)-1))){
+    trained <- randomForest(Sales~.,data=train, mtry=m)
+    yhat <- predict(trained, newdata=test)
+    
+    result_list[[m]] <- data.frame(mtry=m, mse = mean((yhat-test$Sales)^2))
+  }
+  return(bind_rows(result_list))
+}
+
+rf.carseats <- cv_rf(cs_train,cs_test)
+
+rf.carseats %>% 
+  ggplot(aes(x = mtry, y = mse))+
+  geom_line()
+
 
 #caret tree implementation
 

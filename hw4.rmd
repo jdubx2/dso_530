@@ -26,7 +26,8 @@ library(ISLR)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-library(caret)
+library(tree)
+library(randomForest)
 data("Carseats")
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -40,10 +41,93 @@ mean(probs)
 ```
 <p>The majority approach would classify $X$ as Red (a 6 to 4 majority) while the average approach would classify $X$ as green with a mean probility over all 10 samples of .45</p>
 </li>
-<li value = '8'><br/>
+<li value = '8'>
+<ol type='a'>
+<li><br/>
 ```{r}
 set.seed(2)
 
+train_idx <- sample(nrow(Carseats),200)
+
+cs_train <- Carseats[train_idx,]
+cs_test <- Carseats[-train_idx,]
 
 ```
 </li>
+<li><br/>
+```{r}
+tree.carseats <- tree(Sales~.,data=cs_train)
+summary(tree.carseats)
+
+plot(tree.carseats )
+text(tree.carseats ,pretty =0)
+
+test_pred <- predict(tree.carseats, newdata = cs_test)
+
+mean((test_pred -cs_test$Sales)^2)
+```
+We obtain a test MSE of 4.845
+</li>
+<li><br/>
+```{r}
+cvtree.carseats <- cv.tree(tree.carseats)
+data.frame(size = cvtree.carseats$size, dev = cvtree.carseats$dev) %>% 
+  ggplot(aes(x = size,y = dev))+
+  geom_line()+scale_x_continuous(breaks = seq(1,17,1))
+
+pruning <- function(tree_model,sizes){
+  
+  for(size in sizes){if(size !=1){
+    prune.carseats = prune.tree(tree.carseats, best = size)
+    
+    test_pred <- predict(prune.carseats, newdata = cs_test)
+    
+    mse <- data.frame(pred = test_pred, act = cs_test$Sales) %>% 
+      mutate(sqerr = (pred-act)^2) %>% summarise(mean(sqerr))
+    
+    print(paste0(size,' Node Test MSE: ',round(mse,3)))
+  }}
+}
+
+pruning(tree.carseats,cvtree.carseats$size)
+```
+Pruning does not seem to improve the test MSE much. In this case the 14 node tree has a marginally better test MSE at 4.844 vs 4.845 for the 17 node $T_0$ tree.
+</li>
+<li><br/>
+```{r}
+bag.carseats <- randomForest(Sales~., data=cs_train,mtry=10)
+yhat.bag <- predict(bag.carseats,newdata=cs_test)
+
+mean((yhat.bag -cs_test$Sales)^2)
+importance(bag.carseats)
+```
+Test MSE is lowered to 2.410 for bagging and Price, ShelveLoc and CompPrice are the most influential predictors in the model.
+</li>
+<li><br/>
+```{r}
+cv_rf <- function(train,test){
+  
+  result_list <- list()
+  
+  for(m in seq(1:(ncol(train)-1))){
+    trained <- randomForest(Sales~.,data=train, mtry=m)
+    yhat <- predict(trained, newdata=test)
+    
+    result_list[[m]] <- data.frame(mtry=m, mse = mean((yhat-test$Sales)^2))
+  }
+  return(bind_rows(result_list))
+}
+
+rf.carseats <- cv_rf(cs_train,cs_test)
+
+rf.carseats %>% 
+  ggplot(aes(x = mtry, y = mse))+
+  geom_line()
+
+rf.carseats
+```
+Lowering the value of $m$ actually worsens the test MSE in this case with $m=p$ still giving the best test MSE. In this case the predictor importance will be unchanged.
+</li>
+</ol>
+</li>
+</ol>
