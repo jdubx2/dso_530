@@ -94,3 +94,25 @@ lr_pred <- predict(lr,cs_test)
 
 data.frame(pred = lr_pred, act = cs_test$Sales) %>% 
   mutate(sqerr = (pred-act)^2) %>% summarise(mean(sqerr))
+
+
+lr <- lm(Sales~.-Population-Education-Urban-US, data=cs_train)
+
+library(FactoMineR)
+pca = PCA(Carseats[,c(2,3,4,5,6,8,9)], scale.unit=TRUE, ncp=5, graph=T)
+
+
+library(leaps)
+library(glmnet)
+
+x <- model.matrix(Sales~.,data=cs_train)[,c(2,3,4,6,7,8,9)]
+y <- cs_train$Sales
+
+grid=10^seq(10,-2, length =100)
+
+ridge.mod <- glmnet(x,y,alpha=0, lambda=grid, standardize=FALSE)
+
+ridge_pred=predict(ridge.mod ,s=.01, newx= model.matrix(Sales~.,data=cs_test)[,c(2,3,4,6,7,8,9)])
+
+data.frame(pred = ridge_pred, lr = lr_pred, act = cs_test$Sales) %>% 
+  mutate(sqerr = (X1-act)^2) %>% summarise(mean(sqerr))
