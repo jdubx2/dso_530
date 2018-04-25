@@ -124,6 +124,7 @@ train_all <- train_all %>%
          ip = factor(ip),
          click_time = factor(click_time))
 
+#remove rows pripor to 1min
 train1 <- train_all[58316:1000000,]
 test1 <- train_all[1000001:1500000,]
 

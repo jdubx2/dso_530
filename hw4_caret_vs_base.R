@@ -110,9 +110,9 @@ y <- cs_train$Sales
 
 grid=10^seq(10,-2, length =100)
 
-ridge.mod <- glmnet(x,y,alpha=0, lambda=grid, standardize=FALSE)
+ridge.mod <- glmnet(x,y,alpha=0, lambda=grid, standardize=T)
 
-ridge_pred=predict(ridge.mod ,s=.01, newx= model.matrix(Sales~.,data=cs_test)[,c(2,3,4,6,7,8,9)])
+ridge_pred=predict(ridge.mod ,s=.03, newx= model.matrix(Sales~.,data=cs_test)[,c(2,3,4,6,7,8,9)])
 
 data.frame(pred = ridge_pred, lr = lr_pred, act = cs_test$Sales) %>% 
   mutate(sqerr = (X1-act)^2) %>% summarise(mean(sqerr))
