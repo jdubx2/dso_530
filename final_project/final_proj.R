@@ -164,8 +164,9 @@ roc_df %>%
   theme_bw()
 
 #write.csv(smote_train, 'train_smote.csv', row.names = F)
+library(readr)
 
-smote_train <- read.csv('train_smote_Apr15.csv', stringsAsFactors = F)
+smote_train <- read_csv('train_smote_Apr15.csv')
 
 ### reg subsets
 
@@ -193,3 +194,35 @@ filter(data.frame(feature = names(best.subset.summary$which[11,]),
                   result = best.subset.summary$which[11,]), result == T)
 
 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(extrafont)
+
+labeler <- function(x){
+  if(x[1] < -1){
+  return(paste0(x/1000,'k'))
+  }
+  else if(x[1] == 0){
+    return(c('0','10k','20k',NA))
+  }
+  else{
+    return(x)
+  }
+}
+
+data.frame(Rsq = best.subset.summary$adjr2, 
+           BIC = best.subset.summary$bic,
+           Cp = best.subset.summary$cp,
+           rn = 0:11) %>% 
+  gather(metric,value,-rn) %>% 
+  ggplot(aes(x=rn, y = value))+
+  geom_line()+
+  facet_grid(metric~., scales = 'free_y')+
+  scale_x_continuous(breaks = seq(0,11,1))+
+  scale_y_continuous(labels = function(x) labeler(x))+
+  theme_bw()+
+  theme(text= element_text(family = 'Arial', size=16),
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = .5))+
+  labs(x='Number of Predictors', y = '', title = 'Best Subset Selection')
